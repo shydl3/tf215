@@ -11,7 +11,7 @@ Code Semantic Enrichment for Deep Code Search
 ## Usage
 
    ### DataSets
-  The processed datasets used in our paper will be found at https://pan.baidu.com/s/1mrVdCw-iz7ZY-wLIoI-bWg  password:75dl
+  The processed datasets used in our paper will be found at ：https://pan.baidu.com/s/1RPoh4rNUP0wVr8EXM78rkg password:nth8
   
   And the `/data` folder need be included by `/keras`. 
   

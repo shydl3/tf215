@@ -6,6 +6,7 @@ Code Semantic Enrichment for Deep Code Search
 * Python 2.7-3.6
 * Keras 2.1.3 or newer
 * Tensorflow-gpu 1.7.0
+* lucene 7.7.1
 
 
 ## Usage

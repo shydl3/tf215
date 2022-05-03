@@ -14,8 +14,11 @@ Code Semantic Enrichment for Deep Code Search
    ### DataSets
   The processed datasets used in our paper will be found at ：https://pan.baidu.com/s/1RPoh4rNUP0wVr8EXM78rkg password:nth8
   
-  And the `/data` folder need be included by `/keras`. 
-  
+   ### Enrichment Module
+   
+   ```bash
+   python Index.py
+   python Search.py
    
    ### Configuration
    

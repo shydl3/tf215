@@ -35,7 +35,7 @@ Code Semantic Enrichment for Deep Code Search
    ### Code Search Module
    
    #### Configuration
-   Put the data set into the `data` directory under `keras`
+   Put the data set into the `data/github` directory under `keras`
    
    Edit hyper-parameters and settings in `config.py`
    

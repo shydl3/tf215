@@ -26,6 +26,7 @@ class JointEmbeddingModel:
         self.config = config
         self.model_params = config.get('model_params', dict())
         self.data_params = config.get('data_params',dict())
+        self.tokens=Input(shape=(self.data_params['tokens_len'],),dtype='int32',name='i_tokens')
         self.sim_desc=Input(shape=(self.data_params['sim_desc_len'],),dtype='int32',name='i_sim_desc')
         self.desc_good = Input(shape=(self.data_params['desc_len'],), dtype='int32', name='i_desc_good')
         self.desc_bad = Input(shape=(self.data_params['desc_len'],), dtype='int32', name='i_desc_bad')
@@ -45,8 +46,26 @@ class JointEmbeddingModel:
         1. Build Code Representation Model
         '''
         logger.debug('Building Code Representation Model')
+        tokens=Input(shape=(self.data_params['tokens_len'],),dtype='int32',name='tokens')
         sim_desc=Input(shape=(self.data_params['sim_desc_len'],),dtype='int32',name='sim_desc')
 
+
+        ## Tokens Representation ##
+        #1.embedding
+        init_emb_weights = np.load(self.config['workdir']+self.model_params['init_embed_weights_tokens']) if self.model_params['init_embed_weights_tokens'] is not None else None
+        init_emb_weights = init_emb_weights if init_emb_weights is None else [init_emb_weights]
+        # init_emb_weights =pickle.load(open(self.config['workdir']+self.model_params['init_embed_weights_tokens'],'rb'))
+        embedding = Embedding(input_dim=self.data_params['n_tokens_words'],
+                              output_dim=self.model_params.get('n_embed_dims'),
+                              weights=init_emb_weights,
+                              trainable=True,
+                              mask_zero=False,#Whether 0 in the input is a special "padding" value that should be masked out. 
+                              #If set True, all subsequent layers must support masking, otherwise an exception will be raised.
+                              name='embedding_tokens')
+        tokens_embedding = embedding(tokens)
+        dropout = Dropout(0.25,name='dropout_tokens_embed')
+        tokens_dropout= dropout(tokens_embedding)
+        tokens_out = AttentionLayer(name = 'tokens_attention_layer')(tokens_dropout)
 
 
 
@@ -91,14 +110,41 @@ class JointEmbeddingModel:
 
         #AP networks#
         attention = COAttentionLayer(name='coattention_layer') #  (122,60)
+        attention_tq_out=attention([tokens_out,merged_desc])
         attention_sq_out=attention([sim_desc_out,merged_desc])
         
         normalOp=Lambda(lambda x: tf.matrix_diag(x),name='normalOp')
+        # out_1 colum wise
         gap_cnn=GlobalAveragePooling1D(name='globalaveragepool_cnn')
+        # out_2 row wise
         attention_trans_layer = Lambda(lambda x: K.permute_dimensions(x, (0,2,1)),name='trans_coattention')
+
+        
+        # out_1 colum wise
+        activ_tq_1=Activation('softmax',name='tq_AP_active_colum')
+        dot_tq_1=Dot(axes=1,normalize=False,name='tq_column_dot')
+        attention_tq_matrix = attention_tq_out
+        tq_conv1 = Conv1D(100,2,padding='same', activation='relu',strides=1,name='tq_conv1')
+        tq_desc_conv = tq_conv1(attention_tq_matrix)
+        dense_tq_desc = Dense(30,use_bias=False,name='dense_tq_desc')
+        tq_desc_conv=dense_tq_desc(tq_desc_conv)
+        tq_desc_conv=gap_cnn(tq_desc_conv)
+        tq_desc_att=activ_tq_1(tq_desc_conv)
+        tq_desc_out=dot_tq_1([tq_desc_att, merged_desc])
+        # out_2 row wise
+        attention_transposed = attention_trans_layer(attention_tq_out)
+        activ_tq_2=Activation('softmax',name='tq_AP_active_row')
+        dot_tq_2=Dot(axes=1,normalize=False,name='tq_row_dot')
+        attention_tq_matrix =attention_transposed
+        tq_conv2 = Conv1D(100,2,padding='same', activation='relu',strides=1,name='tq_conv2')
+        tq_out_conv = tq_conv2(attention_tq_matrix)
+        dense_tq = Dense(50,use_bias=False,name='dense_tq')
+        tq_out_conv=dense_tq(tq_out_conv)
+        tq_out_conv=gap_cnn(tq_out_conv)
+        tq_out_att=activ_tq_2(tq_out_conv)
+        tq_out=dot_tq_2([tq_out_att, tokens_out])
         
 
-        # sim_Desc
         # out_1 colum wise
         activ_sq_1=Activation('softmax',name='sq_AP_active_colum')
         dot_sq_1=Dot(axes=1,normalize=False,name='sq_column_dot')
@@ -124,8 +170,17 @@ class JointEmbeddingModel:
         sq_out_att=activ_sq_2(sq_out_conv)
         sq_out=dot_sq_2([sq_out_att, sim_desc_out])
 
-        desc_out=sq_desc_out
-        code_out=sq_out
+        merged_desc_out=Concatenate(name='desc_orig_merge',axis=1)([tq_desc_out,sq_desc_out])
+        merged_code_out=Concatenate(name='code_orig_merge',axis=1)([tq_out,sq_out])
+        reshape_desc=Reshape((2,100))(merged_desc_out)
+        reshape_code=Reshape((2,100))(merged_code_out)
+      
+        att_desc_out=AttentionLayer(name = 'desc_merged_attention_layer')(reshape_desc)
+        att_code_out=AttentionLayer(name = 'code_merged_attention_layer')(reshape_code)
+        gap=GlobalAveragePooling1D(name='blobalaveragepool')
+        mulop=Lambda(lambda x: x*2.0,name='mulop')
+        desc_out=mulop(gap(att_desc_out))
+        code_out=mulop(gap(att_code_out))
         
         """
         3: calculate the cosine similarity between code and desc
@@ -133,7 +188,7 @@ class JointEmbeddingModel:
         logger.debug('Building similarity model')
         cos_sim=Dot(axes=1, normalize=True, name='cos_sim')([code_out, desc_out])
         
-        sim_model = Model(inputs=[sim_desc,desc], outputs=[cos_sim],name='sim_model')   
+        sim_model = Model(inputs=[tokens,sim_desc,desc], outputs=[cos_sim],name='sim_model')   
         self._sim_model=sim_model  #for model evaluation  
         print ("\nsummary of similarity model")
         self._sim_model.summary() 
@@ -144,13 +199,13 @@ class JointEmbeddingModel:
         '''
         4:Build training model
         '''
-        good_sim = sim_model([self.sim_desc,self.desc_good])# similarity of good output
-        bad_sim = sim_model([self.sim_desc,self.desc_bad])#similarity of bad output
+        good_sim = sim_model([self.tokens,self.sim_desc,self.desc_good])# similarity of good output
+        bad_sim = sim_model([self.tokens,self.sim_desc,self.desc_bad])#similarity of bad output
         loss = Lambda(lambda x: K.maximum(1e-6, self.model_params['margin'] - x[0] + x[1]),
                      output_shape=lambda x: x[0], name='loss')([good_sim, bad_sim])
 
         logger.debug('Building training model')
-        self._training_model=Model(inputs=[self.sim_desc,self.desc_good,self.desc_bad],
+        self._training_model=Model(inputs=[self.tokens,self.sim_desc,self.desc_good,self.desc_bad],
                                    outputs=[loss],name='training_model')
         print ('\nsummary of training model')
         self._training_model.summary()      

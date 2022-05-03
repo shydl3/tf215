@@ -12,19 +12,18 @@ Code Semantic Enrichment for Deep Code Search
 ## Usage
 
    ### DataSets
-  The processed datasets used in our paper will be found at ：https://pan.baidu.com/s/1RPoh4rNUP0wVr8EXM78rkg password:nth8
+  The datasets used in our paper will be found at ：https://pan.baidu.com/s/1RPoh4rNUP0wVr8EXM78rkg password:nth8
   
-   ### Enrichment Module
+   ### Code Enrichment Module
+   Build retrieval base: python Index.py
+   Perform search: python Search.py
    
-   ```bash
-   python Index.py
-   python Search.py
-   
-   ### Configuration
+   ### Code Search Module
+   #### Configuration
    
    Edit hyper-parameters and settings in `config.py`
    
-   ### Train and Evaluate
+   #### Train and Evaluate
    
    ```bash
    python main.py --mode train

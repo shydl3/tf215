@@ -14,14 +14,28 @@ Code Semantic Enrichment for Deep Code Search
    ### DataSets
   The datasets used in our paper will be found at: https://pan.baidu.com/s/19vAF889nbJgZ4NV3az8v1g password:m4o7
   
-   ### Code Enrichment Module
-   Build retrieval base: python Index.py
+   ### Data Process
+   If you want to reprocess the data, you can process it into a usable form for the model by following steps:
    
-   Perform search: python Search.py
+   1.Build corpus for each features (i.e., description, tokens, similar description):
+   
+   `python createCorpus.py` `python createVocab.py` `python vocab2pkl.py`
+   
+   2.Processing training data and testing data according to the corpus:
+   
+   `python txt2pkl.py`
+   
+   ### Code Enrichment Module
+   Build retrieval base: `python Index.py`
+   
+   Perform search: `python Search.py`
+   
+   Remove stop words: `python deleteStopWords.py`
    
    ### Code Search Module
    
    #### Configuration
+   Put the data set into the `data` directory under `keras`
    
    Edit hyper-parameters and settings in `config.py`
    

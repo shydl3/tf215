@@ -17,7 +17,7 @@ Code Semantic Enrichment for Deep Code Search
    ### Data Process
    If you want to reprocess the data, you can process it into a usable form for the model by following steps:
    
-   1.Build corpus for each features (i.e., description, tokens, similar description):
+   1.Build corpus for each features (i.e., description, tokens):
    
    `python createCorpus.py` `python createVocab.py` `python vocab2pkl.py`
    

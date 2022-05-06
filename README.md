@@ -12,7 +12,7 @@ Code Semantic Enrichment for Deep Code Search
 ## Usage
 
    ### DataSets
-  The datasets used in our paper will be found at: https://pan.baidu.com/s/19vAF889nbJgZ4NV3az8v1g password:m4o7
+  The datasets used in our paper will be found at: https://pan.baidu.com/s/1IXcIE2ddEyworDT_ZWyT_A password:bdun
   
    ### Data Process
    If you want to reprocess the data, you can process it into a usable form for the model by following steps:

@@ -44,4 +44,3 @@ class AttentionLayer(Layer):
     def compute_output_shape(self, input_shape):
         return input_shape[0], input_shape[1], input_shape[2]
 
-

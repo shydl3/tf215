@@ -30,7 +30,7 @@ class COAttentionLayer(Layer):
         a = tf.linalg.matmul(inputs[0], self.kernel)
 
         # y_trans = K.permute_dimensions(inputs[1], (0,2,1))
-        y_trans = tf.transpose(y, perm=(0,2,1))
+        y_trans = tf.transpose(inputs[1], perm=(0,2,1))
 
         # b = K.batch_dot(a, y_trans, axes=[2,1])
         b = tf.linalg.matmul(a, y_trans)

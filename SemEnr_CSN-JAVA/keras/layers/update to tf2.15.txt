@@ -7,5 +7,6 @@ import tensorflow as tf
 
 
 
-
+!
+self_attention_layer_1.py and self_attention_layer.py seems not actualy used
 

@@ -33,6 +33,7 @@ class LayerNormLayer(Layer):
         outputs_2 = K.relu(K.dot(outputs_1, self.W_1))
         outputs_3 = K.dot(outputs_2, self.W_2)
         outputs_4 = K.dropout(outputs_3,level=0.25)
+        
         outputs = outputs_1 + outputs_4
 
         print(outputs)

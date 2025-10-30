@@ -27,28 +27,28 @@ def get_config():
             'vocab_desc':'vocab.desc.pkl',
         },               
         'training_params': {
-            'batch_size': 128,
-            'chunk_size':100000,
-            'nb_epoch': 400,
+            'batch_size': 2048,
+            'chunk_size':200000,
+            'nb_epoch': 200,
             'validation_split': 0.1,
             # 'optimizer': 'adam',
             #'optimizer': Adam(clip_norm=0.1),
-            'valid_every': 1,
-            'n_eval': 100,
+            'valid_every': 5,
+            'n_eval': 50,
             'evaluate_all_threshold': {
                 'mode': 'all',
                 'top1': 0.4,
             },
-            'save_every': 1,
+            'save_every': 5,
             'reload':0, #that the model is reloaded from . If reload=0, then train from scratch
         },
 
         'model_params': {
             'model_name':'JointEmbeddingModel',
             'n_embed_dims': 100,
-            'n_hidden': 400,#number of hidden dimension of code/desc representation
+            'n_hidden': 512,#number of hidden dimension of code/desc representation
             # recurrent
-            'n_lstm_dims': 200, # * 2
+            'n_lstm_dims': 256, # * 2
             'init_embed_weights_methname': None,#'word2vec_100_methname.h5', 
             'init_embed_weights_tokens': None,#'word2vec_100_tokens.h5',
             'init_embed_weights_sbt':None, 

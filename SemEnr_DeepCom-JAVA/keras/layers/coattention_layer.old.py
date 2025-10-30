@@ -1,11 +1,5 @@
-# -*- coding: utf-8 -*-
-
-
-# from keras import backend as K
-# from keras.engine.topology import Layer
-from tensorflow.keras.layers import Layer
-
-import tensorflow as tf
+from keras import backend as K
+from keras.engine.topology import Layer
 
 class COAttentionLayer(Layer):
 
@@ -27,17 +21,10 @@ class COAttentionLayer(Layer):
         super(COAttentionLayer, self).build(input_shape)
 
     def call(self, inputs):
-        # a = K.dot(inputs[0], self.kernel)
-        a = tf.linalg.matmul(inputs[0], self.kernel)
-
-        # y_trans = K.permute_dimensions(inputs[1], (0,2,1))
-        y_trans = tf.transpose(inputs[1], perm=(0,2,1))
-
-        # b = K.batch_dot(a, y_trans, axes=[2,1])
-        b = tf.linalg.matmul(a, y_trans)
-
-        # return K.tanh(b)
-        return tf.math.tanh(b)
+        a = K.dot(inputs[0], self.kernel)
+        y_trans = K.permute_dimensions(inputs[1], (0,2,1))
+        b = K.batch_dot(a, y_trans, axes=[2,1])
+        return K.tanh(b)
     
     def compute_output_shape(self, input_shape):
 

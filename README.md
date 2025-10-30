@@ -1,39 +1,17 @@
-# SemEnr
-Code Semantic Enrichment for Deep Code Search
-
-## Dependency
-> Tested in Ubuntu 16.04
-* Python 2.7-3.6
-* Keras 2.1.3 or newer
-* Tensorflow-gpu 1.7.0
-* lucene 7.7.1
+echo $CONDA_PREFIX
+/home/ldonglin@id.sdsu.edu/miniconda3/envs/test1
 
 
-## Usage
+find $CONDA_PREFIX -type f -path "*/nvvm/libdevice/libdevice.10.bc"
+/home/ldonglin@id.sdsu.edu/miniconda3/envs/test1/nvvm/libdevice/libdevice.10.bc
 
-   ### DataSets
-  The datasets used in our paper will be found at: https://drive.google.com/drive/folders/1j-0xukLQWGrJ8-Lxw7vFAbubFTyXJT2C?usp=sharing
-  
-   ### Data Process
-   If you want to reprocess the data, you can process it into a usable form for the model by following steps:
-   
-   1.Build corpus for each features (i.e., description, tokens):
-   
-   `python createCorpus.py` `python createVocab.py` `python vocab2pkl.py`
-   
-   2.Processing training data and testing data according to the corpus:
-   
-   `python txt2pkl.py`
-   
-   ### Code Enrichment Module
-   Build retrieval base: `python Index.py`
-   
-   Perform search: `python Search.py`
-   
-   Remove stop words: `python deleteStopWords.py`
-   
-   ### Code Search Module
-   
+
+export XLA_FLAGS="--xla_gpu_cuda_data_dir=$CONDA_PREFIX"
+export TF_XLA_FLAGS="--tf_xla_auto_jit=0"
+export TF_DISABLE_XLA=1
+export TF_ENABLE_ONEDNN_OPTS=0
+
+
    #### Configuration
    Put the data set into the `data/github` directory under `keras`
    

@@ -18,6 +18,16 @@ export TF_XLA_FLAGS="--tf_xla_auto_jit=0"
 export TF_DISABLE_XLA=1
 export TF_ENABLE_ONEDNN_OPTS=0
 
+## 后台挂起训练
+screen -S train
+
+screen -ls
+
+CTRL A + D: detatch screen session
+
+RECONNECT: screen -r train
+
+TERMINATE SSSCREEN: IN SESSION: exit
 
    #### Configuration
    Put the data set into the `data/github` directory under `keras`

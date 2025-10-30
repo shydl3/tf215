@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # TensorFlow 2.15 等价实现：不改动原有功能/形状/计算顺序
 import tensorflow as tf
 from tensorflow.keras.layers import Layer

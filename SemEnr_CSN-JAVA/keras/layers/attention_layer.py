@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # from keras.engine import Layer
 from tensorflow.keras.layers import Layer
 

@@ -1,3 +1,10 @@
+# FIRST：
+conda env create -f environment_full.yml
+
+用 conda 从 NVIDIA channel 安装 cuda-nvcc 11.8（带 nvvm/libdevice）
+conda install -c nvidia cuda-nvcc=11.8 -y
+
+## 设置nvcc环境变量，顺利编译
 echo $CONDA_PREFIX
 /home/ldonglin@id.sdsu.edu/miniconda3/envs/test1
 

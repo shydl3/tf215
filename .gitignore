@@ -1,0 +1,144 @@
+
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+*.pdb
+*.dll
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.joblib
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+*.conda/
+
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints/
+*.ipynb_convert/
+jupyter_notebook_config.json
+
+# =========================
+# Logs / Debug
+# =========================
+*.log
+*.out
+*.err
+logs/
+nohup.out
+debug/
+*.bak
+*.tmp
+*.swp
+
+# =========================
+# Data / Outputs
+# =========================
+data/
+datasets/
+*.csv
+*.tsv
+*.txt
+*.json
+*.yaml
+*.yml
+*.xml
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.pkl
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.bin
+*.tar
+*.tar.gz
+*.zip
+*.rar
+
+# =========================
+# Models / Checkpoints
+# =========================
+checkpoints/
+runs/
+outputs/
+experiments/
+models/
+saved_models/
+weights/
+wandb/
+lightning_logs/
+mlruns/
+tensorboard/
+*.tfevents.*
+
+# =========================
+# IDE / Editor Config
+# =========================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# =========================
+# System / OS Files
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+~$*
+
+# =========================
+# Build / Packaging
+# =========================
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+MANIFEST
+pip-wheel-metadata/
+
+# =========================
+# Git / Temp
+# =========================
+*.orig
+*.rej
+*.patch
+*.diff
+*.merge_file_*
+*.coverage
+.coverage*
+.cache/
+.tox/
+.pytest_cache/
+htmlcov/
+
+# =========================
+# Docker / Environment
+# =========================
+docker-compose.override.yml
+.env
+.env.local
+.env.*.local
+*.sh~
+*.bak
+*.tmp

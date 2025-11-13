@@ -592,8 +592,12 @@ if __name__ == '__main__':
         if conf['training_params']['reload'] > 0:
             codesearcher.load_model_epoch(model, conf['training_params']['reload'])
         codesearcher.load_codebase()
-        resultsFile = codecs.open('/data/userName/SemEnr_CSN-JAVA/keras/results/search_results.txt', 'w', encoding='utf-8', errors='ignore')
-        queriesFile = codecs.open('/data/userName/SemEnr_CSN-JAVA/keras/results/query.txt', "r", encoding='utf-8', errors='ignore')
+
+        # print(os.getcwd() + "\n" + "="*50)
+        # sys.exit(1)
+
+        resultsFile = codecs.open('./results/search_results.txt', 'w', encoding='utf-8', errors='ignore')
+        queriesFile = codecs.open('./results/query.txt', "r", encoding='utf-8', errors='ignore')
         n_results = 10
         while 1:
             queries = queriesFile.readline().splitlines()
@@ -609,8 +613,8 @@ if __name__ == '__main__':
             zipped = list(zipped)[:n_results]
             results = '\\n\\n'.join(map(str, zipped))  # combine the result into a returning string
             print(results)
-            resultsFile.write('Query:{}'.format(query) + '\\n')
-            resultsFile.write('Returned codes:{}'.format(results) + '\\n')
+            resultsFile.write('Query:{}'.format(query) + '\n')
+            resultsFile.write('Returned codes:{}'.format(results) + '\n\n')
 
     # In TF 2.x there's no global Keras session to clear; use this to free resources if needed.
     try:

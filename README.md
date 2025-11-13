@@ -39,3 +39,6 @@ TERMINATE SSSCREEN: IN SESSION: exit
    ```bash
    python main.py --mode train
    python main.py --mode eval
+
+   #### search
+   python main.py --mode search

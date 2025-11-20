@@ -12,7 +12,7 @@ echo $CONDA_PREFIX
 find $CONDA_PREFIX -type f -path "*/nvvm/libdevice/libdevice.10.bc"
 /home/ldonglin@id.sdsu.edu/miniconda3/envs/test1/nvvm/libdevice/libdevice.10.bc
 
-
+# RUN THIS EVERYTIME BEFORE TRAINING OR INFERENCING
 export XLA_FLAGS="--xla_gpu_cuda_data_dir=$CONDA_PREFIX"
 export TF_XLA_FLAGS="--tf_xla_auto_jit=0"
 export TF_DISABLE_XLA=1

@@ -36,6 +36,8 @@ model.compile(optimizer=optimizer)
 
 if conf['training_params']['reload'] > 0:
             codesearcher.load_model_epoch(model, conf['training_params']['reload'])
+else:
+    print("WARNING: training_params['reload'] == 0，随机初始化权重！")
 
 codesearcher.load_codebase()  
 
@@ -52,60 +54,85 @@ data_len = len(use_tokens)
 
 print(f"Search pool size: {data_len} code snippets.")
 
-
-
 def search_code(query: str, top_k: int = 5):
-    """
-    输入自然语言描述 (query)，返回 top_k 条代码及相似度。
-    逻辑基本复用 CodeSearcher.search()，只是不再每次重新 load 数据。
-    """
+    codes, sims = codesearcher.search(model, query, n_results=top_k)
 
-    if not query.strip():
-        return "请输入要查询的代码功能描述。"
+    # 如果你想稳妥一点，可以再按 sims 降序排一下
+    pairs = list(zip(codes, sims))
+    pairs.sort(key=lambda x: x[1], reverse=True)
+    pairs = pairs[:top_k]
 
-    desc_indices = codesearcher.convert(codesearcher.vocab_desc, query)
-    padded_desc = codesearcher.pad([desc_indices] * data_len, desc_len)
+    blocks = []
+    for rank, (code_snippet, score) in enumerate(pairs, 1):
+        formatted = pretty_format_java(code_snippet)
+        block = f"""**Top {rank}**  
+score = `{score:.4f}`
 
-    # 3.2 调用模型做相似度预测
-    sims = model.predict(
-        [padded_tokens, padded_sim_desc, padded_desc],
-        batch_size=1000,
-        verbose=0
-    ).flatten()  # shape: (data_len,)
-
-    # 3.3 取 Top-K
-    if top_k > data_len:
-        top_k = data_len
-
-    negsims = np.negative(sims)
-    # 先选出 top_k 个索引
-    candidate_inds = np.argpartition(negsims, kth=top_k - 1)[:top_k]
-    # 再按相似度从大到小排序
-    candidate_sims = sims[candidate_inds]
-    order = np.argsort(-candidate_sims)
-    top_inds = candidate_inds[order]
-    top_sims = candidate_sims[order]
-
-    # 3.4 组装成可读字符串
-    # outputs = []
-    # for rank, (idx, score) in enumerate(zip(top_inds, top_sims), 1):
-    #     code_snippet = codesearcher._code_base[idx]
-    #     outputs.append(f"【Top {rank}】\n{code_snippet}")
-
-    # return "\n\n" + ("-" * 60 + "\n\n").join(outputs)
-
-    outputs = []
-    for rank, (idx, score) in enumerate(zip(top_inds, top_sims), 1):
-        code_snippet = codesearcher._code_base[idx]
-
-        # 用 Markdown 代码块包装
-        block = f"""**Top {rank}**  \nscore = `{score:.4f}`
 ```java
-{code_snippet}
+{formatted}
 ```"""
-        outputs.append(block)
+        blocks.append(block)
 
-    return "\n\n".join(outputs)
+    return "\n\n".join(blocks)
+
+
+# def search_code(query: str, top_k: int = 5):
+#     """
+#     输入自然语言描述 (query)，返回 top_k 条代码及相似度。
+#     逻辑基本复用 CodeSearcher.search()，只是不再每次重新 load 数据。
+#     """
+
+#     if not query.strip():
+#         return "请输入要查询的代码功能描述。"
+
+#     # print(f"{query}")
+#     # sys.exit(1)
+    
+#     print("RAW QUERY:", repr(query))
+
+#     # 看看分词和索引
+#     tokens = query.strip().lower().split(' ')
+#     desc_indices = codesearcher.convert(codesearcher.vocab_desc, query)
+#     print("TOKENS:", tokens)
+#     print("INDICES:", desc_indices)
+
+
+#     # 3.3 取 Top-K
+#     if top_k > data_len:
+#         top_k = data_len
+    
+#     n_results = top_k
+
+
+#     codes, sims = codesearcher.search(model, query, top_k)
+#     zipped = list(zip(codes, sims))
+#     zipped = sorted(zipped, reverse=True, key=lambda x: x[1])
+#     zipped = codesearcher.postproc(zipped)
+#     zipped = list(zipped)[:n_results]
+#     results = '\n\n'.join(map(str, zipped))  # combine the result into a returning string
+
+
+#     negsims = np.negative(sims)
+#     # 先选出 top_k 个索引
+#     candidate_inds = np.argpartition(negsims, kth=top_k - 1)[:top_k]
+#     # 再按相似度从大到小排序
+#     candidate_sims = sims[candidate_inds]
+#     order = np.argsort(-candidate_sims)
+#     top_inds = candidate_inds[order]
+#     top_sims = candidate_sims[order]
+
+#     outputs = []
+#     for rank, (idx, score) in enumerate(zip(top_inds, top_sims), 1):
+#         code_snippet = codesearcher._code_base[idx]
+
+#         # 用 Markdown 代码块包装
+#         block = f"""**Top {rank}**  \nscore = `{score:.4f}`
+# ```java
+# {code_snippet}
+# ```"""
+#         outputs.append(block)
+
+#     return "\n\n".join(outputs)
 
 
 def pretty_format_java(code: str) -> str:
@@ -159,4 +186,4 @@ demo = gr.ChatInterface(
 )
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=True)
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)

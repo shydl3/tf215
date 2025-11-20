@@ -550,7 +550,7 @@ def parse_args():
     parser = argparse.ArgumentParser("Train and Test Code Search(Embedding) Model")
     parser.add_argument("--proto", choices=["get_config"], default="get_config",
                         help="Prototype config to use for config")
-    parser.add_argument("--mode", choices=["train", "eval", "repr_code", "search"], default='train',
+    parser.add_argument("--mode", choices=["train", "eval", "repr_code", "search", "search_demo"], default='train',
                         help="The mode to run. The `train` mode trains a model;"
                              " the `eval` mode evaluat models in a test set "
                              " The `repr_code/repr_desc` mode computes vectors"
@@ -611,10 +611,51 @@ if __name__ == '__main__':
             zipped = sorted(zipped, reverse=True, key=lambda x: x[1])
             zipped = codesearcher.postproc(zipped)
             zipped = list(zipped)[:n_results]
-            results = '\\n\\n'.join(map(str, zipped))  # combine the result into a returning string
+            results = '\n\n'.join(map(str, zipped))  # combine the result into a returning string
             print(results)
             resultsFile.write('Query:{}'.format(query) + '\n')
             resultsFile.write('Returned codes:{}'.format(results) + '\n\n')
+
+
+# new search demo below
+    elif args.mode == 'search_demo':
+            # search code based on a desc
+            if conf['training_params']['reload'] > 0:
+                codesearcher.load_model_epoch(model, conf['training_params']['reload'])
+            codesearcher.load_codebase()
+
+            # print(os.getcwd() + "\n" + "="*50)
+            # sys.exit(1)
+
+            resultsFile = codecs.open('./results/search_results.txt', 'w', encoding='utf-8', errors='ignore')
+            queriesFile = codecs.open('./results/query.txt', "r", encoding='utf-8', errors='ignore')
+            n_results = 10
+            # while 1:
+            #     queries = queriesFile.readline().splitlines()
+            #     if not queries:
+            #         break
+            query = "convert an inputstream to a string"
+
+            # print(os.getcwd() + "\n" + "$"*50)
+            # print(type(query))
+            # sys.exit(1)
+
+            n_results = 10
+            codes, sims = codesearcher.search(model, query, n_results)
+            zipped = list(zip(codes, sims))
+            zipped = sorted(zipped, reverse=True, key=lambda x: x[1])
+            zipped = codesearcher.postproc(zipped)
+            zipped = list(zipped)[:n_results]
+            results = '\n\n'.join(map(str, zipped))  # combine the result into a returning string
+            
+            print(os.getcwd() + "\n" + "$"*50)
+            print(results)
+            print(os.getcwd() + "\n" + "$"*50)
+            sys.exit(1)
+
+            # resultsFile.write('Query:{}'.format(query) + '\n')
+            # resultsFile.write('Returned codes:{}'.format(results) + '\n\n')
+
 
     # In TF 2.x there's no global Keras session to clear; use this to free resources if needed.
     try:

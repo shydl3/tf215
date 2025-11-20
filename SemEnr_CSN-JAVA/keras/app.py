@@ -3,7 +3,7 @@
 
 import numpy as np
 import gradio as gr
-
+import sys
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 
@@ -11,7 +11,7 @@ import configs
 from configs import get_config
 from models import *  
 from main import CodeSearcher, configure_gpu_memory_growth
-
+ 
 
 # 加载参数，模型
 configure_gpu_memory_growth()
@@ -87,29 +87,67 @@ def search_code(query: str, top_k: int = 5):
     top_sims = candidate_sims[order]
 
     # 3.4 组装成可读字符串
+    # outputs = []
+    # for rank, (idx, score) in enumerate(zip(top_inds, top_sims), 1):
+    #     code_snippet = codesearcher._code_base[idx]
+    #     outputs.append(f"【Top {rank}】\n{code_snippet}")
+
+    # return "\n\n" + ("-" * 60 + "\n\n").join(outputs)
+
     outputs = []
     for rank, (idx, score) in enumerate(zip(top_inds, top_sims), 1):
         code_snippet = codesearcher._code_base[idx]
-        outputs.append(f"【Top {rank} | score={score:.4f}】\n{code_snippet}")
 
-    return "\n\n" + ("-" * 60 + "\n\n").join(outputs)
+        # 用 Markdown 代码块包装
+        block = f"""**Top {rank}**  \nscore = `{score:.4f}`
+```java
+{code_snippet}
+```"""
+        outputs.append(block)
+
+    return "\n\n".join(outputs)
+
+
+def pretty_format_java(code: str) -> str:
+    code = code.replace("{", "{\n")
+    code = code.replace("}", "\n}\n")
+    code = code.replace(";", ";\n")
+
+    lines = [l.strip() for l in code.split("\n") if l.strip()]
+
+    indent = 0
+    new_lines = []
+    for line in lines:
+        if line.startswith("}"):
+            indent -= 1
+        new_lines.append("    " * indent + line)
+        if line.endswith("{"):
+            indent += 1
+    return "\n".join(new_lines)
 
 
 def chat_fn(message, history):
     """
     Gradio ChatInterface 回调函数。
     - message: 当前这一条用户输入
-    - history: 之前的 (user, bot) 列表，这里我们完全不使用，实现“单轮问答”。
+    - history: 之前的 (user, bot) 列表,实现单轮问答。
     """
     result_text = search_code(message, top_k=5)
-    return result_text
+
+    format_text = pretty_format_java(result_text)
+
+    # print(format_text)
+    # sys.exit(1)
+
+    # return result_text
+    return format_text
 
 
 demo = gr.ChatInterface(
     fn=chat_fn,
     title="Code Search Demo (Based on CSN-JAVA)",
     description=(
-        "输入自然语言描述，"
+        "请输入自然语言描述，"
         "模型会在代码库中检索相似的代码片段，返回 Top-K 结果。\n"
         "逻辑上是单轮问答，不记忆历史对话。"
     ),

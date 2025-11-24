@@ -57,7 +57,7 @@ print(f"Search pool size: {data_len} code snippets.")
 def search_code(query: str, top_k: int = 5):
     codes, sims = codesearcher.search(model, query, n_results=top_k)
 
-    # 如果你想稳妥一点，可以再按 sims 降序排一下
+    
     pairs = list(zip(codes, sims))
     pairs.sort(key=lambda x: x[1], reverse=True)
     pairs = pairs[:top_k]
@@ -173,10 +173,10 @@ def chat_fn(message, history):
 demo = gr.ChatInterface(
     fn=chat_fn,
     title="Code Search Demo (Based on CSN-JAVA)",
-    description=(
-        "请输入自然语言描述，"
-        "模型会在代码库中检索相似的代码片段，返回 Top-K 结果。\n"
-        "逻辑上是单轮问答，不记忆历史对话。"
+    description=(f
+        "Please enter the natural language description of your interested code.\n\n"
+        "The model will automatically search the similar code snippets in the repository, and return the Top-5 results.\n\n"
+        "The conversion is based on single-turn logic, which does not remember the chat history.\n"
     ),
     examples=[
         ["convert an inputstream to a string"],

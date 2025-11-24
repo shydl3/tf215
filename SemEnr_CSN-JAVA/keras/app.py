@@ -173,7 +173,7 @@ def chat_fn(message, history):
 demo = gr.ChatInterface(
     fn=chat_fn,
     title="Code Search Demo (Based on CSN-JAVA)",
-    description=(f
+    description=(
         "Please enter the natural language description of your interested code.\n\n"
         "The model will automatically search the similar code snippets in the repository, and return the Top-5 results.\n\n"
         "The conversion is based on single-turn logic, which does not remember the chat history.\n"
@@ -186,4 +186,6 @@ demo = gr.ChatInterface(
 )
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    # demo.launch(server_name="0.0.0.0", server_port=7860, share=True)
+    demo.launch(share=True, share_server_address="141.147.78.50:443")
+
